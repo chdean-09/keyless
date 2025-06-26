@@ -1,18 +1,17 @@
 "use client"
-import { DoorLockDashboard } from "@/components/door-lock-dashboard"
 import { authClient } from "@/lib/auth/auth-client"
 import { redirect } from "next/navigation"
 
-export default function Home() {
+export default function Login() {
   const {
     data: session,
   } = authClient.useSession()
 
-  if (!session) {
-    redirect("/login")
+  if (session) {
+    redirect("/")
   }
 
   return (
-    <DoorLockDashboard />
+    <div>Login</div>
   )
 }
