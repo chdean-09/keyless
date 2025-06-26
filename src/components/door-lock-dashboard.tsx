@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Wifi, Lock, Unlock, Shield, ShieldCheck } from "lucide-react"
+import { Plus, Wifi, Lock, Unlock, Shield, ShieldCheck, Edit2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -67,6 +67,8 @@ export function DoorLockDashboard() {
 
   const [showAddDevice, setShowAddDevice] = useState(false)
   const [showManageAccess, setShowManageAccess] = useState(false)
+  const [editingDevice, setEditingDevice] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState("")
 
   const toggleDeviceLock = (deviceId: string) => {
     setDevices(
@@ -91,6 +93,22 @@ export function DoorLockDashboard() {
       deviceAccess,
     }
     setUsers([...users, newUser])
+  }
+
+  const updateDeviceName = (deviceId: string, newName: string) => {
+    setDevices(devices.map((device) => (device.id === deviceId ? { ...device, name: newName } : device)))
+    setEditingDevice(null)
+    setEditingName("")
+  }
+
+  const startEditing = (device: Device) => {
+    setEditingDevice(device.id)
+    setEditingName(device.name)
+  }
+
+  const cancelEditing = () => {
+    setEditingDevice(null)
+    setEditingName("")
   }
 
   return (
@@ -154,13 +172,70 @@ export function DoorLockDashboard() {
                   <Card key={device.id} className="relative">
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg">{device.name}</CardTitle>
-                        <Badge
-                          variant={device.isOnline ? "default" : "secondary"}
-                          className={device.isOnline ? "bg-green-500" : ""}
-                        >
-                          {device.isOnline ? "Online" : "Offline"}
-                        </Badge>
+                        {editingDevice === device.id ? (
+                          <div className="flex flex-col gap-2 w-full sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex flex-col gap-2 w-full sm:flex-row sm:items-center sm:gap-2 sm:flex-1">
+                              <Input
+                                value={editingName}
+                                onChange={(e) => setEditingName(e.target.value)}
+                                className="text-lg font-semibold w-full"
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    updateDeviceName(device.id, editingName)
+                                  } else if (e.key === "Escape") {
+                                    cancelEditing()
+                                  }
+                                }}
+                                autoFocus
+                              />
+                              <div className="flex gap-2 w-full sm:w-auto">
+                                <Button
+                                  size="sm"
+                                  onClick={() => updateDeviceName(device.id, editingName)}
+                                  disabled={!editingName.trim()}
+                                  className="flex-1 sm:flex-none"
+                                >
+                                  Save
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={cancelEditing}
+                                  className="flex-1 sm:flex-none"
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 group">
+                            <CardTitle
+                              className="text-lg cursor-pointer hover:text-primary transition-colors flex-1"
+                              onClick={() => startEditing(device)}
+                              title="Click to edit device name"
+                            >
+                              {device.name}
+                            </CardTitle>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                              onClick={() => startEditing(device)}
+                              title="Edit device name"
+                            >
+                              <Edit2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
+                        {editingDevice !== device.id && (
+                          <Badge
+                            variant={device.isOnline ? "default" : "secondary"}
+                            className={device.isOnline ? "bg-green-500" : ""}
+                          >
+                            {device.isOnline ? "Online" : "Offline"}
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">IP: {device.ipAddress}</p>
                       <p className="text-xs text-muted-foreground">Last seen: {device.lastSeen}</p>
