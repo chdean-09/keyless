@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Wifi, Lock, Unlock, Shield, ShieldCheck, Edit2 } from "lucide-react"
+import { Wifi, Lock, Unlock, Shield, Edit2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AddDeviceDialog } from "@/components/add-device-dialog"
-import { ManageAccessDialog } from "@/components/manage-access-dialog"
 
 interface Device {
   id: string
@@ -57,7 +56,7 @@ export function DoorLockDashboard() {
     },
   ])
 
-  const [users, setUsers] = useState<User[]>([
+  const [users] = useState<User[]>([
     {
       id: "1",
       email: "john@example.com",
@@ -66,7 +65,6 @@ export function DoorLockDashboard() {
   ])
 
   const [showAddDevice, setShowAddDevice] = useState(false)
-  const [showManageAccess, setShowManageAccess] = useState(false)
   const [editingDevice, setEditingDevice] = useState<string | null>(null)
   const [editingName, setEditingName] = useState("")
 
@@ -84,15 +82,6 @@ export function DoorLockDashboard() {
       id: (devices.length + 1).toString(),
     }
     setDevices([...devices, newDevice])
-  }
-
-  const addUser = (email: string, deviceAccess: string[]) => {
-    const newUser = {
-      id: (users.length + 1).toString(),
-      email,
-      deviceAccess,
-    }
-    setUsers([...users, newUser])
   }
 
   const updateDeviceName = (deviceId: string, newName: string) => {
@@ -150,21 +139,6 @@ export function DoorLockDashboard() {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Device Management */}
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-2xl font-bold">Your Devices</h2>
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <Button onClick={() => setShowManageAccess(true)} variant="outline" className="w-full sm:w-auto">
-                    <ShieldCheck className="mr-2 h-4 w-4" />
-                    <span className="sm:inline">Manage Access</span>
-                  </Button>
-                  <Button onClick={() => setShowAddDevice(true)} className="w-full sm:w-auto">
-                    <Plus className="mr-2 h-4 w-4" />
-                    <span className="sm:inline">Add Device</span>
-                  </Button>
-                </div>
-              </div>
 
               {/* Devices Grid */}
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -300,14 +274,6 @@ export function DoorLockDashboard() {
       </SidebarInset>
 
       <AddDeviceDialog open={showAddDevice} onOpenChange={setShowAddDevice} onAddDevice={addDevice} />
-
-      <ManageAccessDialog
-        open={showManageAccess}
-        onOpenChange={setShowManageAccess}
-        devices={devices}
-        users={users}
-        onAddUser={addUser}
-      />
     </>
   )
 }
