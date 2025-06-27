@@ -14,8 +14,8 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
+  id            String         @id @default(uuid())
+  email         String         @unique
   devices       Device[]
   name          String
   emailVerified Boolean
@@ -31,8 +31,8 @@ model User {
 model Device {
   id             String  @id // MAC address
   name           String?
-  registeredToId String
-  registeredTo   User    @relation(fields: [registeredToId], references: [id])
+  registeredToId String?
+  registeredTo   User?   @relation(fields: [registeredToId], references: [id])
   lastCommand    String  @default("none")
 
   @@map("device")
