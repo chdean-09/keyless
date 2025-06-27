@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { authClient } from "@/lib/auth/auth-client"
+import { redirect } from "next/navigation"
 
 const menuItems = [
   {
@@ -41,10 +43,12 @@ const menuItems = [
 ]
 
 export function AppSidebar() {
+  const { data: session } = authClient.useSession()
+
   const user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    avatar: "/placeholder.svg?height=32&width=32",
+    name: session?.user?.name || "Loading...",
+    email: session?.user?.email || "Loading...",
+    avatar: session?.user?.image || "/placeholder.svg?height=32&width=32",
   }
 
   return (
@@ -116,7 +120,15 @@ export function AppSidebar() {
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-red-600">
+                <DropdownMenuItem className="text-red-600" onClick={async () => {
+                  await authClient.signOut({
+                    fetchOptions: {
+                      onSuccess: () => {
+                        redirect("/auth");
+                      },
+                    },
+                  });
+                }}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out
                 </DropdownMenuItem>
