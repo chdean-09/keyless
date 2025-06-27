@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { redirect } from "next/navigation"
 import { authClient } from "@/lib/auth/auth-client"
 
 interface SignupFormProps {
@@ -28,6 +27,7 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [message, setMessage] = useState("")
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -59,31 +59,37 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
 
     if (!validateForm()) return
 
-    setIsLoading(true)
-
-    try {
-      await authClient.signUp.email({
-        email, // user email address
-        password, // user password -> min 8 characters by default
-        name, // user display name
-        callbackURL: "/" // A URL to redirect to after the user verifies their email (optional)
-      }, {
+    await authClient.signUp.email({
+      email,
+      password,
+      name,
+      callbackURL: "/",
+      fetchOptions: {
         onRequest: () => {
           setIsLoading(true)
         },
         onSuccess: () => {
+          setMessage("Account created successfully! Please check your email to verify your account.")
           setIsLoading(false)
-          redirect("/")
+          setFormData({
+            name: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+          })
         },
         onError: (ctx) => {
+          setIsLoading(false);
+          setFormData({
+            name: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+          })
           setError(ctx.error.message);
         },
-      });
-    } catch (err) {
-      setError("Signup failed. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
+      }
+    });
   }
 
   const handleGoogleSignUp = async () => {
@@ -102,6 +108,7 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
         return
       }
     } catch (err) {
+      console.error("Google sign-up error:", err)
       setError("Google sign-up failed. Please try again.")
     }
   }
@@ -121,6 +128,12 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {message && (
+          <Alert variant="default">
+            <AlertDescription className="text-green-500">{message}</AlertDescription>
           </Alert>
         )}
 

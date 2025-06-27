@@ -25,24 +25,33 @@ export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     setError("")
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+    await authClient.signIn.email({
+      email,
+      password,
+      callbackURL: "/",
+      fetchOptions: {
+        onRequest: () => {
+          setIsLoading(true)
+        },
+        onSuccess: () => {
+          setIsLoading(false)
+          setEmail("")
+          setPassword("")
+        },
+        onError: (ctx) => {
+          setIsLoading(false)
+          setEmail("")
+          setPassword("")
+          if (ctx.error.status === 403) {
+            setError("Please verify your email address")
+          }
 
-      // Simulate successful login
-      if (email && password) {
-        // Redirect to dashboard or handle successful login
-        window.location.href = "/"
-      } else {
-        setError("Please fill in all fields")
+          setError(ctx.error.message);
+        },
       }
-    } catch (err) {
-      setError("Login failed. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
+    });
   }
 
   const handleGoogleSignIn = async () => {
@@ -61,6 +70,7 @@ export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
         return
       }
     } catch (err) {
+      console.error("Google sign-in error:", err)
       setError("Google sign-in failed. Please try again.")
     }
   }
@@ -174,7 +184,7 @@ export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 
       <CardFooter className="flex flex-col space-y-2">
         <div className="text-sm text-center text-muted-foreground">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Button variant="link" className="px-0 font-normal" onClick={onSwitchToSignup}>
             Sign up
           </Button>

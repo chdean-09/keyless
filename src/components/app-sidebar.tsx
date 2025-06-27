@@ -17,7 +17,7 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { authClient } from "@/lib/auth/auth-client"
-import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 const menuItems = [
   {
@@ -44,6 +44,7 @@ const menuItems = [
 
 export function AppSidebar() {
   const { data: session } = authClient.useSession()
+  const router = useRouter()
 
   const user = {
     name: session?.user?.name || "Loading...",
@@ -124,7 +125,7 @@ export function AppSidebar() {
                   await authClient.signOut({
                     fetchOptions: {
                       onSuccess: () => {
-                        redirect("/auth");
+                        router.push("/auth");
                       },
                     },
                   });
