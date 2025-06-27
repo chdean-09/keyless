@@ -54,7 +54,7 @@ export async function POST(req: Request, {
     return NextResponse.json({ message: "Command set" });
   } catch (error) {
     console.error("Error setting device command:", error);
-    
+
     return NextResponse.json({
       error: "Failed to set device command"
     }, {
