@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Wifi, Lock, Unlock, Shield, Edit2 } from "lucide-react"
+import { Plus, Wifi, Lock, Unlock, Shield, Edit2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -139,6 +139,17 @@ export function DoorLockDashboard() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Device Management */}
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-2xl font-bold">Your Devices</h2>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Button onClick={() => setShowAddDevice(true)} className="w-full sm:w-auto">
+                    <Plus className="mr-2 h-4 w-4" />
+                    <span className="sm:inline">Add Device</span>
+                  </Button>
+                </div>
+              </div>
 
               {/* Devices Grid */}
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
